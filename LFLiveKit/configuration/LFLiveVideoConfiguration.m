@@ -10,7 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 
 
-@implementation LFLiveVideoConfiguration
+@implementation LFLiveVideoConfiguration {
+    BOOL _sessionPresetValidated;
+}
 
 #pragma mark -- LifeCycle
 
@@ -129,7 +131,7 @@
     default:
         break;
     }
-    configuration.sessionPreset = [configuration supportSessionPreset:configuration.sessionPreset];
+    configuration.sessionPreset = LFLiveVideoQuality_Low1;
     configuration.videoMaxKeyframeInterval = configuration.videoFrameRate*2;
     configuration.outputImageOrientation = outputImageOrientation;
     CGSize size = configuration.videoSize;
@@ -144,6 +146,11 @@
 
 #pragma mark -- Setter Getter
 - (NSString *)avSessionPreset {
+    if (!_sessionPresetValidated) {
+        self.sessionPreset = [self supportSessionPreset:self.sessionPreset];
+        _sessionPresetValidated = YES;
+    }
+
     NSString *avSessionPreset = nil;
     switch (self.sessionPreset) {
     case LFCaptureSessionPreset360x640:{
@@ -199,7 +206,7 @@
 
 - (void)setSessionPreset:(LFLiveVideoSessionPreset)sessionPreset{
     _sessionPreset = sessionPreset;
-    _sessionPreset = [self supportSessionPreset:sessionPreset];
+    _sessionPresetValidated = NO;
 }
 
 #pragma mark -- Custom Method
